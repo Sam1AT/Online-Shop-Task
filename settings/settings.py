@@ -150,5 +150,3 @@ SIMPLE_JWT = {
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-
-CART_LIFETIME = 30 # write it to seconds

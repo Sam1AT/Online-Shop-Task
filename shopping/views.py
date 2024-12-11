@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.db import transaction
-from django.conf import settings
 from utils import get_redis_client
 
 from shopping.models import Product
+
+
+CART_LIFETIME = 30
 
 class AddToCartView(APIView):
     def post(self, request):
@@ -41,7 +43,7 @@ class AddToCartView(APIView):
                 redis_client.hmset(cart_key, cart)
 
                 shadow_cart_key = f"shadow:{cart_key}"
-                redis_client.set(shadow_cart_key, "", ex=settings.CART_LIFETIME)
+                redis_client.set(shadow_cart_key, "", ex=CART_LIFETIME)
 
             return Response(
                 {"message": "Added to cart", "cart": cart},

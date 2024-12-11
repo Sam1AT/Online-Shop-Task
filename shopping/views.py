@@ -39,7 +39,9 @@ class AddToCartView(APIView):
                     cart[product_id] = str(quantity)
 
                 redis_client.hmset(cart_key, cart)
-                redis_client.expire(cart_key, settings.CART_LIFETIME)
+
+                shadow_cart_key = f"shadow:{cart_key}"
+                redis_client.set(shadow_cart_key, "", ex=settings.CART_LIFETIME)
 
             return Response(
                 {"message": "Added to cart", "cart": cart},

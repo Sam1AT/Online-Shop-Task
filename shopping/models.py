@@ -34,9 +34,9 @@ class CartItem(Base):
 
 class Cart(Base):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    price = models.IntegerField()
+    price = models.IntegerField(default=0)
     is_bought = models.BooleanField(default=False)
-    
+
     def update_cart_price(self):
         sum = self.cart_items.annotate(
             total_item_price=F('quantity') * F('product__price')

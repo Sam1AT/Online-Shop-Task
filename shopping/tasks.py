@@ -6,6 +6,7 @@ from shopping.utils import create_cart_in_db
 from .models import Product
 
 redis_client = get_redis_client()
+listener_thread_started = False
 
 def listen_for_expired_keys():
 
@@ -36,10 +37,15 @@ def handle_cart_expiration(cart_key):
                     product.stock += int(quantity)
                     product.save()
 
-            redis_client.delete(cart_key)
-            print("-> Deleted and updated Products stocks")
+        redis_client.delete(cart_key)
+        print("-> Deleted and updated Products stocks")
 
 def start_expiry_listener():
-    listener_thread = threading.Thread(target=listen_for_expired_keys)
-    listener_thread.daemon = True
-    listener_thread.start()
+    global listener_thread_started
+
+    if not listener_thread_started:
+        listener_thread = threading.Thread(target=listen_for_expired_keys)
+        listener_thread.daemon = True
+        listener_thread.start()
+        listener_thread_started = True
+        print("Redis expiry listener thread started")

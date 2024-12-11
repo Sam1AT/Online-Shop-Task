@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-from .tasks import start_expiry_listener
 
 
 class ShoppingConfig(AppConfig):
@@ -8,4 +7,5 @@ class ShoppingConfig(AppConfig):
     name = 'shopping'
 
     def ready(self):
+        from .tasks import start_expiry_listener
         start_expiry_listener()

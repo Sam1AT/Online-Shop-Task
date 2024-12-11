@@ -1,4 +1,3 @@
-import redis
 import threading
 
 from utils import get_redis_client

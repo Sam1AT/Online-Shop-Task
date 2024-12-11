@@ -153,3 +153,4 @@ REDIS_DB = 0
 
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 
+CART_LIFETIME = 1800 # write it to seconds

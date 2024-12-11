@@ -1,6 +1,7 @@
 import threading
 
 from utils import get_redis_client
+from shopping.utils import create_cart_in_db
 from .models import Product
 
 redis_client = get_redis_client()
@@ -24,6 +25,8 @@ def handle_cart_expiration(cart_key):
     cart = redis_client.hgetall(cart_key)
 
     if cart:
+        create_cart_in_db(cart, user_id)
+
         for product_id, quantity in cart.items():
                 product = Product.objects.get(id=product_id)
                 product.stock += int(quantity)

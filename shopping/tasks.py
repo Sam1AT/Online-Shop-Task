@@ -1,4 +1,5 @@
 import threading
+from django.db import transaction
 
 from utils import get_redis_client
 from shopping.utils import create_cart_in_db
@@ -12,6 +13,7 @@ def listen_for_expired_keys():
     pubsub.subscribe('__keyevent@0__:expired')
 
     for message in pubsub.listen():
+        print(message)
 
         if message.get('type') == 'message':
             expired_key = message.get('data')
@@ -27,13 +29,15 @@ def handle_cart_expiration(cart_key):
     if cart:
         create_cart_in_db(cart, user_id)
 
-        for product_id, quantity in cart.items():
-                product = Product.objects.get(id=product_id)
-                product.stock += int(quantity)
-                product.save()
+        with transaction.atomic():
 
-        redis_client.delete(cart_key)
-        print("-> Deleted and updated Products stocks")
+            for product_id, quantity in cart.items():
+                    product = Product.objects.select_for_update().get(id=product_id)
+                    product.stock += int(quantity)
+                    product.save()
+
+            redis_client.delete(cart_key)
+            print("-> Deleted and updated Products stocks")
 
 def start_expiry_listener():
     listener_thread = threading.Thread(target=listen_for_expired_keys)

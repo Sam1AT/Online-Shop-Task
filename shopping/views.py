@@ -1,16 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import permissions
 
 from django.db import transaction
-from utils import get_redis_client
 
+from utils import get_redis_client
 from shopping.models import Product
 
 
 CART_LIFETIME = 30
 
 class AddToCartView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     def post(self, request):
         user_id = request.user.id
         product_id = str(request.data.get("product_id"))

@@ -14,7 +14,6 @@ def listen_for_expired_keys():
     pubsub.subscribe('__keyevent@0__:expired')
 
     for message in pubsub.listen():
-        print(message)
 
         if message.get('type') == 'message':
             expired_key = message.get('data')

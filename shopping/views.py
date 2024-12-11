@@ -21,7 +21,7 @@ class AddToCartView(APIView):
 
                 product = Product.objects.select_for_update().get(id=product_id)
 
-                if product.stock < quantity:
+                if product.is_available(quantity):
                     return Response(
                         {"error": f"Can't provide this quantity for {product.name}"},
                         status=status.HTTP_400_BAD_REQUEST,

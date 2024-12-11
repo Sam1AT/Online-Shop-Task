@@ -12,3 +12,7 @@ class Product(Base):
     name = models.CharField(max_length=255)
     price = models.IntegerField()
     stock = models.IntegerField(default=0)
+
+    @staticmethod
+    def is_available(self, quantity):
+        return self.stock >= quantity

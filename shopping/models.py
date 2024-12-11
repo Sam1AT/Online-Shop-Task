@@ -11,3 +11,4 @@ class Base(models.Model):
 class Product(Base):
     name = models.CharField(max_length=255)
     price = models.IntegerField()
+    stock = models.IntegerField()

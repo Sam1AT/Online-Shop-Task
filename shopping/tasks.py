@@ -29,10 +29,10 @@ def handle_cart_expiration(cart_key):
     if cart:
         create_cart_in_db(cart, user_id)
 
-        with transaction.atomic():
 
-            for product_id, quantity in cart.items():
-                    product = Product.objects.select_for_update().get(id=product_id)
+        for product_id, quantity in cart.items():
+                product = Product.objects.select_for_update().get(id=product_id)
+                with transaction.atomic():
                     product.stock += int(quantity)
                     product.save()
 

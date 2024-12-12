@@ -21,7 +21,7 @@ class AddToCartView(APIView):
 
         try:
             with transaction.atomic():
-                product = Product.objects.select_for_update(nowait=True).get(id=product_id)
+                product = Product.objects.select_for_update().get(id=product_id)
 
                 if not product.is_available(quantity):
                     return Response(

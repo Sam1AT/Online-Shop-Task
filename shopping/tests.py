@@ -1,4 +1,6 @@
-from django.test import TestCase
+import copy
+
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from accounts.models import CustomUser
 
@@ -11,7 +13,7 @@ from shopping.models import Product
 from utils import get_redis_client
 
 
-class AddToCartViewTests(TestCase):
+class AddToCartViewTests(TransactionTestCase):
 
     def setUp(self):
         self.user = CustomUser.objects.create_user(email="testuser@yahoo.com", password="password")
@@ -64,3 +66,31 @@ class AddToCartViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("Can't provide this amount for", response.data["error"])
 
+
+    def add_to_cart(self, product_id, url):
+        data = {"product_id": product_id, "quantity": 1}
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
+        response = client.post(url, data, format="json")
+
+    def test_concurrent_add_to_cart(self):
+
+        url = reverse("add_to_cart")
+        threads = []
+
+        for _ in range(5):
+
+            threads.append(threading.Thread(target=self.add_to_cart, args=(self.product.id, url)))
+
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 5)
+
+        cart_key = f"cart:{self.user.id}"
+        cart = self.redis_client.hgetall(cart_key)
+        self.assertEqual(int(cart[str(self.product.id)]), 5)

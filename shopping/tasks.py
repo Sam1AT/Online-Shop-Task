@@ -42,9 +42,9 @@ def handle_cart_expiration(cart_key):
 def start_expiry_listener():
     global listener_thread_started
 
+    listener_thread = threading.Thread(target=listen_for_expired_keys)
+    listener_thread.daemon = True
     if not listener_thread_started:
-        listener_thread = threading.Thread(target=listen_for_expired_keys)
-        listener_thread.daemon = True
-        listener_thread.start()
         listener_thread_started = True
+        listener_thread.start()
         print("Redis expiry listener thread started")

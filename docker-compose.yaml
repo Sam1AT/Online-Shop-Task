@@ -3,7 +3,6 @@ version: '3.8'
 services:
   redis:
     image: redis:latest
-    container_name: redis
     ports:
       - "6379:6379"
     volumes:
@@ -11,5 +10,18 @@ services:
     command: redis-server --notify-keyspace-events Ex
     restart: always
 
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpass
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    restart: always
+
 volumes:
   redis_data:
+  postgresql:

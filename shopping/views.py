@@ -20,9 +20,8 @@ class AddToCartView(APIView):
         redis_client = get_redis_client()
 
         try:
-            product = Product.objects.select_for_update().get(id=product_id)
             with transaction.atomic():
-
+                product = Product.objects.select_for_update(nowait=True).get(id=product_id)
 
                 if not product.is_available(quantity):
                     return Response(
